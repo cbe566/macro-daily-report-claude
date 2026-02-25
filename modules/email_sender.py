@@ -229,7 +229,10 @@ def generate_email_summary(json_path):
 
 
 def send_report_email(report_date, pdf_path, json_path=None, group=None):
-    """通過 SMTP 全自動發送報告郵件（無需人工介入）
+    """通過 SMTP 全自動發送報告郵件（逐封發送，保護隱私 + 相容企業信箱）
+    
+    每位收件者收到一封獨立信件，To 欄位只有自己，
+    彼此看不到其他收件者，且不會被企業郵件系統擋掉。
     
     Args:
         report_date: 報告日期字串 (如 '2026-02-24')
@@ -239,9 +242,11 @@ def send_report_email(report_date, pdf_path, json_path=None, group=None):
     """
     recipients = load_recipients(group)
     
-    # 所有收件人統一放入 BCC 保護隱私
-    all_bcc = list(recipients.get('to', [])) + list(recipients.get('cc', [])) + list(recipients.get('bcc', []))
-    if not all_bcc:
+    # 合併所有收件人（不管放在 to/cc/bcc，全部逐封發送）
+    all_recipients = list(recipients.get('to', [])) + list(recipients.get('cc', [])) + list(recipients.get('bcc', []))
+    # 去重
+    all_recipients = list(dict.fromkeys(all_recipients))
+    if not all_recipients:
         print("錯誤：沒有收件人")
         return False
     
@@ -264,33 +269,24 @@ def send_report_email(report_date, pdf_path, json_path=None, group=None):
         print(f"JSON 數據文件不存在：{json_path}，使用預設正文")
         content = _fallback_content(report_date)
     
-    # 構建郵件（全部使用 BCC，保護收件者隱私）
-    msg = MIMEMultipart()
-    msg['From'] = f"{SMTP_CONFIG['sender_name']} <{SMTP_CONFIG['sender_email']}>"
-    msg['To'] = SMTP_CONFIG['sender_email']  # To 只放發件人自己
-    # 不設定 Cc，所有收件人透過 BCC 發送，彼此看不到
-    msg['Subject'] = subject
-    
-    # 郵件正文
-    msg.attach(MIMEText(content, 'plain', 'utf-8'))
-    
-    # 附加 PDF
+    # 讀取 PDF 附件（只讀一次，重複使用）
+    pdf_payload = None
+    pdf_filename = None
     if os.path.exists(pdf_path):
         with open(pdf_path, 'rb') as f:
-            pdf_attachment = MIMEBase('application', 'pdf')
-            pdf_attachment.set_payload(f.read())
-            encoders.encode_base64(pdf_attachment)
-            pdf_filename = os.path.basename(pdf_path)
-            pdf_attachment.add_header('Content-Disposition', 'attachment', filename=pdf_filename)
-            msg.attach(pdf_attachment)
-        print(f"已附加 PDF：{pdf_filename}")
+            pdf_payload = f.read()
+        pdf_filename = os.path.basename(pdf_path)
+        print(f"已載入 PDF：{pdf_filename}")
     else:
         print(f"警告：PDF 文件不存在：{pdf_path}")
     
-    # 通過 SMTP 發送（全部走 BCC）
-    print(f"\n正在通過 SMTP 發送郵件...")
+    # 逐封發送
+    print(f"\n正在逐封發送郵件...")
     print(f"  發件人：{SMTP_CONFIG['sender_name']} <{SMTP_CONFIG['sender_email']}>")
-    print(f"  BCC 收件人：{len(all_bcc)} 位")
+    print(f"  收件人：{len(all_recipients)} 位")
+    
+    success_count = 0
+    fail_list = []
     
     try:
         server = smtplib.SMTP(SMTP_CONFIG['server'], SMTP_CONFIG['port'])
@@ -298,17 +294,45 @@ def send_report_email(report_date, pdf_path, json_path=None, group=None):
         server.starttls()
         server.ehlo()
         server.login(SMTP_CONFIG['sender_email'], SMTP_CONFIG['app_password'])
-        server.sendmail(SMTP_CONFIG['sender_email'], all_bcc, msg.as_string())
+        
+        for recipient in all_recipients:
+            try:
+                # 每封信獨立構建，To 只有該收件者
+                msg = MIMEMultipart()
+                msg['From'] = f"{SMTP_CONFIG['sender_name']} <{SMTP_CONFIG['sender_email']}>"
+                msg['To'] = recipient
+                msg['Subject'] = subject
+                
+                msg.attach(MIMEText(content, 'plain', 'utf-8'))
+                
+                # 附加 PDF
+                if pdf_payload:
+                    pdf_attachment = MIMEBase('application', 'pdf')
+                    pdf_attachment.set_payload(pdf_payload)
+                    encoders.encode_base64(pdf_attachment)
+                    pdf_attachment.add_header('Content-Disposition', 'attachment', filename=pdf_filename)
+                    msg.attach(pdf_attachment)
+                
+                server.sendmail(SMTP_CONFIG['sender_email'], [recipient], msg.as_string())
+                success_count += 1
+                print(f"  ✅ {recipient}")
+            except Exception as e:
+                fail_list.append(recipient)
+                print(f"  ❌ {recipient} — {e}")
+        
         server.quit()
         
-        print(f"\n✅ 郵件發送成功！已發送給 {len(all_bcc)} 位收件人（BCC）。")
-        return True
+        print(f"\n發送完成：{success_count}/{len(all_recipients)} 成功")
+        if fail_list:
+            print(f"失敗名單：{', '.join(fail_list)}")
+        return success_count > 0
+    
     except smtplib.SMTPAuthenticationError as e:
         print(f"\n❌ SMTP 認證失敗：{e}")
         print("請確認應用程式密碼是否正確。")
         return False
     except smtplib.SMTPException as e:
-        print(f"\n❌ SMTP 發送失敗：{e}")
+        print(f"\n❌ SMTP 連線失敗：{e}")
         return False
     except Exception as e:
         print(f"\n❌ 郵件發送異常：{e}")
