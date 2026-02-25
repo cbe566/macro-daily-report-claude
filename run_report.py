@@ -252,7 +252,7 @@ def main():
         'hot_stocks': {
             market: [{'symbol': s['symbol'], 'name': s['name'], 'current': s['current'],
                       'change_pct': s['change_pct'], 'volume_ratio': s.get('volume_ratio', 1),
-                      'heat_score': s['heat_score']}
+                      'heat_score': s['heat_score'], 'flow': s.get('flow', '')}
                      for s in stocks]
             for market, stocks in hot_stocks.items()
         },

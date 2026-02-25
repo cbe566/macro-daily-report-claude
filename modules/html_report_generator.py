@@ -552,9 +552,20 @@ def _gen_news_section(events):
         html += f'<div class="news-body">{event.get("description", "")}</div>\n'
 
         tickers = event.get('related_tickers', [])
+        ticker_impact = event.get('ticker_impact', {})
         if tickers:
-            ticker_html = '、'.join([f'<code>{t}</code>' for t in tickers])
-            html += f'<div class="news-tickers">相關標的：{ticker_html}</div>\n'
+            if ticker_impact:
+                impact_parts = []
+                for t in tickers:
+                    impact_desc = ticker_impact.get(t, '')
+                    if impact_desc:
+                        impact_parts.append(f'<code>{t}</code> {impact_desc}')
+                    else:
+                        impact_parts.append(f'<code>{t}</code>')
+                html += f'<div class="news-tickers">相關標的影響：{"；".join(impact_parts)}</div>\n'
+            else:
+                ticker_html = '、'.join([f'<code>{t}</code>' for t in tickers])
+                html += f'<div class="news-tickers">相關標的：{ticker_html}</div>\n'
 
         html += '</div>\n'
 
@@ -625,42 +636,62 @@ def _gen_commodities_forex_bonds(market_data):
 
 # ==================== 熱門股票 ====================
 
+def _gen_stock_table_html(stocks, stock_analysis):
+    """渲染一組股票的 HTML 表格"""
+    if not stocks:
+        return ""
+    html = '<table>\n<thead><tr>'
+    html += '<th>股票</th><th>代碼</th><th class="right">收盤價</th><th class="right">漲跌幅</th><th class="center">量比</th><th>分析</th>'
+    html += '</tr></thead>\n<tbody>\n'
+    for s in stocks:
+        full_symbol = s['symbol']
+        symbol_base = full_symbol.split('.')[0]
+        analysis = ""
+        if stock_analysis:
+            analysis = stock_analysis.get(full_symbol, stock_analysis.get(symbol_base, ''))
+        name = s['name']
+        if len(name) > 50:
+            name = name[:48] + "..."
+        vol_ratio = s.get('volume_ratio', 1)
+        html += '<tr>'
+        html += f'<td class="name-cell">{name}</td>'
+        html += f'<td><code style="font-size:8pt;">{s["symbol"]}</code></td>'
+        html += f'<td class="right">{s["current"]:,.2f}</td>'
+        html += f'<td class="right">{_format_pct(s["change_pct"])}</td>'
+        html += f'<td class="center">{vol_ratio:.1f}x</td>'
+        html += f'<td class="stock-analysis">{analysis}</td>'
+        html += '</tr>\n'
+    html += '</tbody></table>\n'
+    return html
+
+
 def _gen_hot_stocks_section(hot_stocks, stock_analysis):
-    """生成當日熱門股票章節"""
+    """生成當日熱門股票章節：分區顯示資金追捧 vs 資金出清"""
     html = '<div class="section-title">四、當日熱門股票</div>\n'
-    html += '<p class="analysis-text" style="color:#999;font-size:8.5pt;font-style:italic;">篩選邏輯：結合新聞提及頻率、成交量異常倍率、漲跌幅絕對值綜合計算熱度分數</p>\n'
+    html += '<p class="analysis-text" style="color:#999;font-size:8.5pt;font-style:italic;">'
+    html += '篩選邏輯：資金追捧（量比 ≥ 1.5x + 上漲）；資金出清（量比 ≥ 2.5x + 下跌）<br/>'
+    html += '熱度權重：成交量異常 50% > 漲跌幅 35% > 新聞提及 15%</p>\n'
 
     for market in ['美股', '港股', '日股', '台股']:
-        if market in hot_stocks and hot_stocks[market]:
-            html += f'<div class="sub-section-title">{market}熱門股票</div>\n'
-            html += '<table>\n<thead><tr>'
-            html += '<th>股票</th><th>代碼</th><th class="right">收盤價</th><th class="right">漲跌幅</th><th class="center">量比</th><th>分析</th>'
-            html += '</tr></thead>\n<tbody>\n'
+        if market not in hot_stocks or not hot_stocks[market]:
+            continue
 
-            for s in hot_stocks[market]:
-                full_symbol = s['symbol']
-                symbol_base = full_symbol.split('.')[0]
-                analysis = ""
-                if stock_analysis:
-                    analysis = stock_analysis.get(full_symbol, stock_analysis.get(symbol_base, ''))
+        stocks = hot_stocks[market]
+        inflow = [s for s in stocks if s.get('flow') == 'inflow']
+        outflow = [s for s in stocks if s.get('flow') == 'outflow']
 
-                name = s['name']
-                if len(name) > 50:
-                    name = name[:48] + "..."
+        if not inflow and not outflow:
+            continue
 
-                change_cls = _change_class(s['change_pct'])
-                vol_ratio = s.get('volume_ratio', 1)
+        html += f'<div class="sub-section-title">{market}</div>\n'
 
-                html += '<tr>'
-                html += f'<td class="name-cell">{name}</td>'
-                html += f'<td><code style="font-size:8pt;">{s["symbol"]}</code></td>'
-                html += f'<td class="right">{s["current"]:,.2f}</td>'
-                html += f'<td class="right">{_format_pct(s["change_pct"])}</td>'
-                html += f'<td class="center">{vol_ratio:.1f}x</td>'
-                html += f'<td class="stock-analysis">{analysis}</td>'
-                html += '</tr>\n'
+        if inflow:
+            html += '<p style="font-size:9.5pt;font-weight:700;color:#27ae60;margin:8px 0 4px 0;">🔥 資金追捧（買入放量 ≥ 1.5x + 上漲）</p>\n'
+            html += _gen_stock_table_html(inflow, stock_analysis)
 
-            html += '</tbody></table>\n'
+        if outflow:
+            html += '<p style="font-size:9.5pt;font-weight:700;color:#e74c3c;margin:8px 0 4px 0;">⚠️ 資金出清（賣出放量 ≥ 2.5x + 下跌）</p>\n'
+            html += _gen_stock_table_html(outflow, stock_analysis)
 
     html += '<hr class="divider">\n'
     return html

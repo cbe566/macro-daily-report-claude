@@ -34,6 +34,21 @@ def main():
     index_analysis = raw.get('index_analysis', {})
     calendar_events = raw.get('calendar_events', [])
 
+    # 自動補全 flow 欄位（相容舊版 raw_data）
+    MIN_VOL_BUY = 1.5
+    MIN_VOL_SELL = 2.5
+    for market, stocks in hot_stocks.items():
+        for s in stocks:
+            if not s.get('flow'):
+                chg = s.get('change_pct', 0)
+                vr = s.get('volume_ratio', 1)
+                if chg > 0 and vr >= MIN_VOL_BUY:
+                    s['flow'] = 'inflow'
+                elif chg < 0 and vr >= MIN_VOL_SELL:
+                    s['flow'] = 'outflow'
+                else:
+                    s['flow'] = 'inflow' if chg > 0 else 'outflow'  # fallback
+
     print(f"Report date: {report_date}")
     print(f"Hot stocks markets: {list(hot_stocks.keys())}")
     for m, s in hot_stocks.items():

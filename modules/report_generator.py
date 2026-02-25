@@ -202,8 +202,20 @@ def generate_news_section(events):
         md += f"{event.get('description', '')}\n\n"
 
         tickers = event.get('related_tickers', [])
+        ticker_impact = event.get('ticker_impact', {})
         if tickers:
-            md += f"**相關標的**：`{'`、`'.join(tickers)}`\n\n"
+            if ticker_impact:
+                # 顯示每個標的的具體影響方向
+                impact_parts = []
+                for t in tickers:
+                    impact_desc = ticker_impact.get(t, '')
+                    if impact_desc:
+                        impact_parts.append(f"`{t}` {impact_desc}")
+                    else:
+                        impact_parts.append(f"`{t}`")
+                md += f"**相關標的影響**：{'；'.join(impact_parts)}\n\n"
+            else:
+                md += f"**相關標的**：`{'`、`'.join(tickers)}`\n\n"
 
     md += "---\n\n"
     return md
@@ -254,33 +266,53 @@ def generate_commodities_forex_bonds_section(market_data):
 
 # ==================== 熱門股票 ====================
 
+def _render_stock_table(stocks, stock_analysis):
+    """渲染一組股票的表格"""
+    if not stocks:
+        return ""
+    md = "| 股票 | 代碼 | 收盤價 | 漲跌幅 | 量比 | 分析 |\n"
+    md += "|:-----|:-----|-------:|-------:|-----:|:-----|\n"
+    for s in stocks:
+        trend = get_trend_icon(s['change_pct'])
+        full_symbol = s['symbol']
+        symbol_base = full_symbol.split('.')[0]
+        analysis = ""
+        if stock_analysis:
+            analysis = stock_analysis.get(full_symbol, stock_analysis.get(symbol_base, ''))
+        name = s['name']
+        if len(name) > 40:
+            name = name[:38] + "..."
+        md += f"| {trend} **{name}** | `{s['symbol']}` | {s['current']:,.2f} | {s['change_pct']:+.2f}% | {s.get('volume_ratio', 1):.1f}x | {analysis} |\n"
+    md += "\n"
+    return md
+
+
 def generate_hot_stocks_section(hot_stocks, stock_analysis):
-    """生成當日熱門股票章節"""
+    """生成當日熱門股票章節：分區顯示資金追捧 vs 資金出清"""
     md = "## 四、當日熱門股票\n\n"
-    md += "> 篩選邏輯：結合新聞提及頻率、成交量異常倍率、漲跌幅絕對值綜合計算熱度分數\n\n"
+    md += "> 篩選邏輯：資金追捧（量比 ≥ 1.5x + 上漲）；資金出清（量比 ≥ 2.5x + 下跌）\n>\n"
+    md += "> 熱度權重：成交量異常 50% > 漲跌幅 35% > 新聞提及 15%\n\n"
 
     for market in ['美股', '港股', '日股', '台股']:
-        if market in hot_stocks and hot_stocks[market]:
-            md += f"### {market}熱門股票\n\n"
-            md += "| 股票 | 代碼 | 收盤價 | 漲跌幅 | 量比 | 分析 |\n"
-            md += "|:-----|:-----|-------:|-------:|-----:|:-----|\n"
+        if market not in hot_stocks or not hot_stocks[market]:
+            continue
 
-            for s in hot_stocks[market]:
-                trend = get_trend_icon(s['change_pct'])
-                full_symbol = s['symbol']
-                symbol_base = full_symbol.split('.')[0]
-                analysis = ""
-                if stock_analysis:
-                    analysis = stock_analysis.get(full_symbol, stock_analysis.get(symbol_base, ''))
+        stocks = hot_stocks[market]
+        inflow = [s for s in stocks if s.get('flow') == 'inflow']
+        outflow = [s for s in stocks if s.get('flow') == 'outflow']
 
-                # 使用簡短名稱
-                name = s['name']
-                if len(name) > 40:
-                    name = name[:38] + "..."
+        if not inflow and not outflow:
+            continue
 
-                md += f"| {trend} **{name}** | `{s['symbol']}` | {s['current']:,.2f} | {s['change_pct']:+.2f}% | {s.get('volume_ratio', 1):.1f}x | {analysis} |\n"
+        md += f"### {market}\n\n"
 
-            md += "\n"
+        if inflow:
+            md += f"🔥 **資金追捧**（買入放量 ≥ 1.5x + 上漲）\n\n"
+            md += _render_stock_table(inflow, stock_analysis)
+
+        if outflow:
+            md += f"⚠️ **資金出清**（賣出放量 ≥ 2.5x + 下跌）\n\n"
+            md += _render_stock_table(outflow, stock_analysis)
 
     md += "---\n\n"
     return md

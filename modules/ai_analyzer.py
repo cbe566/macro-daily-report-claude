@@ -2,6 +2,10 @@
 """
 AI 分析模組
 使用 OpenAI API 進行新聞歸納、漲跌原因分析、專業客觀的市場分析
+
+v2 改進：
+- 新聞情緒分析區分「對誰利多/利空」（基於相關標的的角度）
+- 避免混淆產業鏈上下游的利多/利空方向
 """
 import json
 from openai import OpenAI
@@ -27,11 +31,19 @@ def analyze_macro_news(news_articles, categorized_news):
 
 嚴格要求：
 1. 只能根據提供的新聞資料進行歸納，嚴禁編造或添加新聞中沒有提到的事件
-2. 優先歸納宏觀層面的事件（央行政策、經濟數據、賿易政策、地緣政治、產業重大變革、大規模併購、重大監管變化），其次才是個股層面的重大事件
+2. 優先歸納宏觀層面的事件（央行政策、經濟數據、貿易政策、地緣政治、產業重大變革、大規模併購、重大監管變化），其次才是個股層面的重大事件
 3. 每條事件需要有清晰的標題和詳細的描述（2-3句話），描述必須基於新聞原文
 4. 標註影響程度（高/中/低）
 5. 標註影響的市場範圍（全球/美國/亞洲/歐洲/特定國家）
-6. 分析對市場的潛在影響方向（利多/利空/中性）
+
+6. **【關鍵】分析對市場的影響方向時，必須明確區分「對誰利多/利空」**：
+   - 必須從 related_tickers 中每個標的的角度來判斷利多/利空
+   - 例如：「DRAM 價格上漲」→ 對記憶體製造商（MU, SK Hynix）是「利多」，但對下游 PC/手機廠商可能是「利空」
+   - 例如：「油價大漲」→ 對石油公司（XOM, CVX）是「利多」，但對航空公司（UAL, DAL）是「利空」
+   - 例如：「Fed 升息」→ 對銀行股（JPM, BAC）可能是「利多」，但對科技成長股（NVDA, TSLA）是「利空」
+   - 在 market_direction 中，請以「整體市場」的角度填寫（利多/利空/中性）
+   - 在 ticker_impact 中，請為每個相關標的分別標註其受到的影響方向
+
 7. 用繁體中文撰寫
 8. 保持專業、客觀的語調
 9. 按重要性排序
@@ -47,8 +59,12 @@ def analyze_macro_news(news_articles, categorized_news):
     "description": "詳細描述",
     "impact_level": "高/中/低",
     "affected_markets": "影響範圍",
-    "market_direction": "利多/利空/中性",
-    "related_tickers": ["相關股票代碼"]
+    "market_direction": "利多/利空/中性（整體市場角度）",
+    "related_tickers": ["相關股票代碼"],
+    "ticker_impact": {{
+      "TICKER1": "利多（原因簡述）",
+      "TICKER2": "利空（原因簡述）"
+    }}
   }}
 ]
 """
@@ -57,7 +73,7 @@ def analyze_macro_news(news_articles, categorized_news):
         response = ai_client.chat.completions.create(
             model=MODEL,
             messages=[{"role": "user", "content": prompt}],
-            max_tokens=3000,
+            max_tokens=4000,
             temperature=0.3,
         )
         content = response.choices[0].message.content.strip()
@@ -183,10 +199,17 @@ def analyze_hot_stocks(hot_stocks_data, news_articles):
 要求：
 1. 為每支股票撰寫 1-2 句話的漲跌原因分析
 2. 如果有相關新聞，引用新聞內容作為原因
-3. 如果沒有明確新聞，根據市場大環境和行業趨勢分析
-4. 用繁體中文撰寫
-5. 保持專業、客觀
-6. 必須為所有列出的股票都提供分析，不可遺漏
+
+3. **【關鍵】判斷新聞對該股票的影響時，必須從該股票自身的角度出發**：
+   - 例如：如果新聞是「DRAM 價格上漲」，而股票是記憶體製造商（如 MU），則這是「利多」因素，因為產品漲價提升營收
+   - 例如：如果新聞是「原油價格暴跌」，而股票是石油公司（如 XOM），則這是「利空」因素
+   - 不要將整體市場的利多/利空直接套用到個股，必須考慮該公司在產業鏈中的位置
+   - 必須區分：供應商 vs 買家、上游 vs 下游、生產者 vs 消費者
+
+4. 如果沒有明確新聞，根據市場大環境和行業趨勢分析
+5. 用繁體中文撰寫
+6. 保持專業、客觀
+7. 必須為所有列出的股票都提供分析，不可遺漏
 
 請以 JSON 格式回覆，key 使用完整的股票代碼（包含交易所後綴，例如 9984.T、2330.TW、0700.HK），美股則直接使用代碼（例如 AAPL）：
 {{
