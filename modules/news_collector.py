@@ -1,28 +1,51 @@
 #!/usr/bin/env python3
 """
-新聞收集模組 v3
-雙來源架構：
-  1. NewsAPI.org（主要）— 高品質主流財經媒體新聞（WSJ, CNBC, Bloomberg, Reuters 等）
-  2. Polygon.io（補充）— 提供 ticker 關聯度和市場情緒數據
+新聞收集模組 v4
+四來源架構（按品質排序）：
+  1. 頂級財經媒體 RSS（Bloomberg, Reuters, FT, WSJ, CNN Business）— via Google News RSS
+  2. CNBC RSS（直接 RSS feed）— 即時性最強
+  3. NewsAPI.org — 廣泛覆蓋主流財經媒體
+  4. Polygon.io — 補充 ticker 關聯度和市場情緒數據
 
 品質控制：
+  - 來源分級：Tier-1（Bloomberg/Reuters/FT/WSJ）> Tier-2（CNBC/CNN）> Tier-3（NewsAPI/Polygon）
   - 過濾律師事務所集體訴訟廣告
-  - 過濾市場研究報告廣告
   - 嚴格日期過濾，只保留目標日期的新聞
-  - 去重合併
+  - 智慧去重合併
 """
 import os
 import re
 import json
 import requests
+import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 from collections import Counter
+from email.utils import parsedate_to_datetime
 
 POLYGON_API_KEY = os.environ.get('POLYGON_API_KEY', '')
 NEWSAPI_KEY = os.environ.get('NEWSAPI_KEY', '919b1fdb80a340f2b3080464664d7178')
 
+# ─── 來源品質分級 ─────────────────────────────────────────────────
+SOURCE_TIERS = {
+    # Tier 1: 頂級財經媒體
+    'Bloomberg': 1, 'Reuters': 1, 'Financial Times': 1,
+    'The Wall Street Journal': 1, 'Wall Street Journal': 1, 'WSJ': 1,
+    # Tier 2: 優質財經媒體
+    'CNBC': 2, 'CNN': 2, 'CNN Business': 2, 'MarketWatch': 2,
+    'Barron\'s': 2, 'The Economist': 2, 'Forbes': 2,
+    # Tier 3: 一般來源
+}
+
+def _get_source_tier(publisher):
+    """取得來源的品質等級（1=最高, 3=一般）"""
+    pub_lower = publisher.lower()
+    for name, tier in SOURCE_TIERS.items():
+        if name.lower() in pub_lower:
+            return tier
+    return 3
+
+
 # ─── 垃圾新聞過濾規則 ─────────────────────────────────────────────
-# 標題/描述中包含這些關鍵詞的新聞將被過濾掉
 JUNK_TITLE_PATTERNS = [
     r'class action',
     r'securities fraud',
@@ -39,7 +62,6 @@ JUNK_TITLE_PATTERNS = [
     r'investors with.*losses',
 ]
 
-# 已知的律師事務所 / 垃圾來源 publisher 名稱
 JUNK_PUBLISHERS = {
     'halper sadeh', 'bragar eagel', 'rosen law', 'robbins llp',
     'bernstein liebhard', 'pomerantz', 'levi & korsinsky',
@@ -49,7 +71,6 @@ JUNK_PUBLISHERS = {
     'scott+scott', 'labaton sucharow',
 }
 
-# 編譯正則表達式（提升效能）
 _JUNK_RE = re.compile('|'.join(JUNK_TITLE_PATTERNS), re.IGNORECASE)
 
 
@@ -59,20 +80,163 @@ def _is_junk_article(article):
     desc = article.get('description', '') or ''
     publisher = article.get('publisher', '').lower()
 
-    # 檢查 publisher 是否為已知垃圾來源
     for junk_pub in JUNK_PUBLISHERS:
         if junk_pub in publisher:
             return True
 
-    # 檢查標題和描述是否匹配垃圾模式
-    combined = f"{title} {desc}"
+    combined = title + " " + desc
     if _JUNK_RE.search(combined):
         return True
 
     return False
 
 
-# ─── NewsAPI.org 新聞來源 ──────────────────────────────────────────
+# ─── 來源 1：頂級財經媒體 via Google News RSS ─────────────────────
+
+# Google News RSS 查詢配置：site:domain + 財經關鍵詞
+PREMIUM_RSS_SOURCES = {
+    'Bloomberg': 'https://news.google.com/rss/search?q=site:bloomberg.com+when:1d&hl=en-US&gl=US&ceid=US:en',
+    'Reuters': 'https://news.google.com/rss/search?q=site:reuters.com+business+when:1d&hl=en-US&gl=US&ceid=US:en',
+    'Financial Times': 'https://news.google.com/rss/search?q=site:ft.com+when:1d&hl=en-US&gl=US&ceid=US:en',
+    'WSJ': 'https://news.google.com/rss/search?q=site:wsj.com+when:1d&hl=en-US&gl=US&ceid=US:en',
+    'CNN Business': 'https://news.google.com/rss/search?q=site:cnn.com+business+when:1d&hl=en-US&gl=US&ceid=US:en',
+}
+
+
+def get_premium_rss_news():
+    """從 Google News RSS 抓取頂級財經媒體新聞"""
+    all_articles = []
+
+    for source_name, rss_url in PREMIUM_RSS_SOURCES.items():
+        try:
+            resp = requests.get(rss_url, timeout=15,
+                                headers={'User-Agent': 'Mozilla/5.0 (compatible; NewsBot/1.0)'})
+            if resp.status_code != 200:
+                print(f"    {source_name}: HTTP {resp.status_code}")
+                continue
+
+            root = ET.fromstring(resp.text)
+            items = root.findall('.//item')
+
+            count = 0
+            for item in items:
+                title_el = item.find('title')
+                pubdate_el = item.find('pubDate')
+                link_el = item.find('link')
+                source_el = item.find('source')
+
+                title = title_el.text if title_el is not None else ''
+                pubdate = pubdate_el.text if pubdate_el is not None else ''
+                link = link_el.text if link_el is not None else ''
+                src = source_el.text if source_el is not None else source_name
+
+                # 清理標題（移除 " - Bloomberg" 等後綴）
+                clean_title = re.sub(r'\s*-\s*(Bloomberg|Reuters|Financial Times|WSJ|CNN)$', '', title).strip()
+
+                # 解析日期
+                published_utc = ''
+                if pubdate:
+                    try:
+                        dt = parsedate_to_datetime(pubdate)
+                        published_utc = dt.strftime('%Y-%m-%dT%H:%M:%SZ')
+                    except Exception:
+                        published_utc = pubdate
+
+                all_articles.append({
+                    'title': clean_title if clean_title else title,
+                    'description': '',
+                    'publisher': src,
+                    'published_utc': published_utc,
+                    'tickers': [],
+                    'keywords': [],
+                    'insights': [],
+                    'url': link,
+                    'source': 'premium_rss',
+                    'source_tier': _get_source_tier(src),
+                })
+                count += 1
+
+            print(f"    {source_name}: {count} 篇")
+
+        except Exception as e:
+            print(f"    {source_name}: Error - {e}")
+
+    return all_articles
+
+
+# ─── 來源 2：CNBC RSS（直接 feed） ───────────────────────────────
+
+CNBC_RSS_FEEDS = {
+    'Top News': 'https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=100003114',
+    'World': 'https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=100727362',
+    'Business': 'https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=10001147',
+    'Technology': 'https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=19854910',
+    'Finance': 'https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=10000664',
+}
+
+
+def get_cnbc_rss_news():
+    """從 CNBC RSS 直接抓取新聞"""
+    all_articles = []
+    seen_titles = set()
+
+    for feed_name, rss_url in CNBC_RSS_FEEDS.items():
+        try:
+            resp = requests.get(rss_url, timeout=10)
+            if resp.status_code != 200:
+                continue
+
+            root = ET.fromstring(resp.text)
+            items = root.findall('.//item')
+
+            count = 0
+            for item in items:
+                title_el = item.find('title')
+                pubdate_el = item.find('pubDate')
+                link_el = item.find('link')
+
+                title = title_el.text if title_el is not None else ''
+                pubdate = pubdate_el.text if pubdate_el is not None else ''
+                link = link_el.text if link_el is not None else ''
+
+                # CNBC feed 內去重
+                title_key = title.lower()[:80]
+                if title_key in seen_titles:
+                    continue
+                seen_titles.add(title_key)
+
+                # 解析日期
+                published_utc = ''
+                if pubdate:
+                    try:
+                        dt = parsedate_to_datetime(pubdate)
+                        published_utc = dt.strftime('%Y-%m-%dT%H:%M:%SZ')
+                    except Exception:
+                        published_utc = pubdate
+
+                all_articles.append({
+                    'title': title,
+                    'description': '',
+                    'publisher': 'CNBC',
+                    'published_utc': published_utc,
+                    'tickers': [],
+                    'keywords': [],
+                    'insights': [],
+                    'url': link,
+                    'source': 'cnbc_rss',
+                    'source_tier': 2,
+                })
+                count += 1
+
+            print(f"    CNBC {feed_name}: {count} 篇")
+
+        except Exception as e:
+            print(f"    CNBC {feed_name}: Error - {e}")
+
+    return all_articles
+
+
+# ─── 來源 3：NewsAPI.org ──────────────────────────────────────────
 
 def get_newsapi_headlines(category='business', country='us', page_size=50):
     """從 NewsAPI 獲取頭條新聞"""
@@ -85,11 +249,11 @@ def get_newsapi_headlines(category='business', country='us', page_size=50):
         }, timeout=15)
         data = resp.json()
         if data.get('status') != 'ok':
-            print(f"  NewsAPI headlines error: {data.get('message', 'unknown')}")
+            print(f"    NewsAPI headlines error: {data.get('message', 'unknown')}")
             return []
         return _process_newsapi_articles(data.get('articles', []))
     except Exception as e:
-        print(f"  NewsAPI headlines error: {e}")
+        print(f"    NewsAPI headlines error: {e}")
         return []
 
 
@@ -107,11 +271,11 @@ def get_newsapi_everything(query, from_date, to_date, sort_by='relevancy', page_
         }, timeout=15)
         data = resp.json()
         if data.get('status') != 'ok':
-            print(f"  NewsAPI everything error: {data.get('message', 'unknown')}")
+            print(f"    NewsAPI everything error: {data.get('message', 'unknown')}")
             return []
         return _process_newsapi_articles(data.get('articles', []))
     except Exception as e:
-        print(f"  NewsAPI everything error: {e}")
+        print(f"    NewsAPI everything error: {e}")
         return []
 
 
@@ -119,25 +283,26 @@ def _process_newsapi_articles(raw_articles):
     """處理 NewsAPI 返回的文章，轉換為統一格式"""
     processed = []
     for article in raw_articles:
-        # 跳過被移除的文章
         if article.get('title') == '[Removed]':
             continue
 
+        publisher = article.get('source', {}).get('name', '')
         processed.append({
             'title': article.get('title', ''),
             'description': article.get('description', '') or '',
-            'publisher': article.get('source', {}).get('name', ''),
+            'publisher': publisher,
             'published_utc': article.get('publishedAt', ''),
-            'tickers': [],  # NewsAPI 不提供 tickers，後續由 Polygon 補充
+            'tickers': [],
             'keywords': [],
             'insights': [],
             'url': article.get('url', ''),
             'source': 'newsapi',
+            'source_tier': _get_source_tier(publisher),
         })
     return processed
 
 
-# ─── Polygon.io 新聞來源（補充） ──────────────────────────────────
+# ─── 來源 4：Polygon.io（補充 ticker 關聯） ──────────────────────
 
 def get_polygon_news(limit=100, ticker=None, published_after=None, published_before=None):
     """從 Polygon.io 獲取金融新聞，支持日期範圍過濾"""
@@ -163,20 +328,22 @@ def get_polygon_news(limit=100, ticker=None, published_after=None, published_bef
         processed = []
         for article in articles:
             pub_date = article.get('published_utc', '')
+            publisher = article.get('publisher', {}).get('name', '')
             processed.append({
                 'title': article.get('title', ''),
                 'description': article.get('description', ''),
-                'publisher': article.get('publisher', {}).get('name', ''),
+                'publisher': publisher,
                 'published_utc': pub_date,
                 'tickers': article.get('tickers', []),
                 'keywords': article.get('keywords', []),
                 'insights': article.get('insights', []),
                 'url': article.get('article_url', ''),
                 'source': 'polygon',
+                'source_tier': _get_source_tier(publisher),
             })
         return processed
     except Exception as e:
-        print(f"  Polygon news error: {e}")
+        print(f"    Polygon news error: {e}")
         return []
 
 
@@ -280,18 +447,17 @@ def categorize_news(articles):
     return categories
 
 
-# ─── 主入口：雙來源新聞收集 ───────────────────────────────────────
+# ─── 主入口：四來源新聞收集 ───────────────────────────────────────
 
 def get_news_for_date(target_date=None):
     """
-    獲取指定日期的新聞（雙來源架構）
+    獲取指定日期的新聞（四來源架構）
 
-    1. NewsAPI（主要）：高品質主流財經媒體新聞
-       - Top Headlines（商業類）
-       - Everything（多主題搜尋：宏觀、科技、大宗商品、地緣政治）
-    2. Polygon（補充）：提供 ticker 關聯度
-    3. 品質過濾：移除律師事務所廣告等垃圾新聞
-    4. 去重合併
+    1. 頂級財經媒體 RSS（Bloomberg, Reuters, FT, WSJ, CNN Business）
+    2. CNBC RSS（直接 feed）
+    3. NewsAPI（廣泛覆蓋）
+    4. Polygon（ticker 關聯）
+    5. 品質過濾 + 來源分級排序 + 去重
     """
     if target_date is None:
         target_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
@@ -299,14 +465,28 @@ def get_news_for_date(target_date=None):
     print(f"  新聞目標日期: {target_date}")
     all_articles = []
 
-    # ── 來源 1：NewsAPI Top Headlines ──
+    # ── 來源 1：頂級財經媒體 via Google News RSS ──
+    print(f"  [Premium RSS] 抓取 Bloomberg, Reuters, FT, WSJ, CNN Business...")
+    premium_articles = get_premium_rss_news()
+    premium_articles = filter_articles_by_date(premium_articles, target_date)
+    print(f"    Premium RSS 當日新聞: {len(premium_articles)} 篇")
+    all_articles.extend(premium_articles)
+
+    # ── 來源 2：CNBC RSS ──
+    print(f"  [CNBC RSS] 抓取 CNBC 新聞...")
+    cnbc_articles = get_cnbc_rss_news()
+    cnbc_articles = filter_articles_by_date(cnbc_articles, target_date)
+    print(f"    CNBC 當日新聞: {len(cnbc_articles)} 篇")
+    all_articles.extend(cnbc_articles)
+
+    # ── 來源 3：NewsAPI Top Headlines ──
     print(f"  [NewsAPI] 抓取 Top Headlines...")
     headlines = get_newsapi_headlines(category='business', page_size=50)
     headlines = filter_articles_by_date(headlines, target_date)
     print(f"    Top Headlines (當日): {len(headlines)} 篇")
     all_articles.extend(headlines)
 
-    # ── 來源 2：NewsAPI Everything（多主題搜尋） ──
+    # ── 來源 3b：NewsAPI Everything（多主題搜尋） ──
     search_queries = [
         ('stock market OR Wall Street OR S&P 500 OR Dow Jones OR NASDAQ', '股市'),
         ('Fed OR interest rate OR central bank OR monetary policy', '央行'),
@@ -331,9 +511,9 @@ def get_news_for_date(target_date=None):
         print(f"    {label}: {len(articles)} 篇")
         all_articles.extend(articles)
 
-    # ── 來源 3：Polygon（補充 ticker 關聯） ──
-    published_after = f"{target_date}T00:00:00Z"
-    published_before = f"{target_date}T23:59:59Z"
+    # ── 來源 4：Polygon（補充 ticker 關聯） ──
+    published_after = target_date + "T00:00:00Z"
+    published_before = target_date + "T23:59:59Z"
     print(f"  [Polygon] 抓取新聞（ticker 關聯）...")
     polygon_articles = get_polygon_news(
         limit=100,
@@ -350,15 +530,15 @@ def get_news_for_date(target_date=None):
     junk_removed = before_filter - len(all_articles)
     print(f"  垃圾新聞過濾: 移除 {junk_removed} 篇（律師事務所廣告等）")
 
-    # ── 去重（根據標題相似度） ──
+    # ── 智慧去重（根據標題相似度） ──
     seen_titles = set()
     unique_articles = []
     for article in all_articles:
         title = article.get('title', '').strip()
         if not title:
             continue
-        # 簡單去重：完全相同標題
-        title_key = title.lower()[:80]
+        # 標準化標題用於去重
+        title_key = re.sub(r'[^a-zA-Z0-9\s]', '', title.lower())[:80]
         if title_key not in seen_titles:
             seen_titles.add(title_key)
             unique_articles.append(article)
@@ -366,44 +546,62 @@ def get_news_for_date(target_date=None):
     all_articles = unique_articles
     print(f"  去重後總新聞數: {len(all_articles)}")
 
-    # ── 按來源品質排序（NewsAPI 優先） ──
+    # ── 按來源品質分級排序 ──
     def _article_priority(a):
-        # NewsAPI 來源排前面
-        source_score = 0 if a.get('source') == 'newsapi' else 1
+        # 來源等級（Tier 1 最高）
+        tier = a.get('source_tier', 3)
+        # 來源類型排序：premium_rss > cnbc_rss > newsapi > polygon
+        source_order = {
+            'premium_rss': 0,
+            'cnbc_rss': 1,
+            'newsapi': 2,
+            'polygon': 3,
+        }
+        src = source_order.get(a.get('source', ''), 4)
         # 有 ticker 關聯的排前面
         ticker_score = 0 if a.get('tickers') else 1
-        return (source_score, ticker_score)
+        return (tier, src, ticker_score)
 
     all_articles.sort(key=_article_priority)
+
+    # ── 統計來源分布 ──
+    source_stats = Counter()
+    tier_stats = Counter()
+    for a in all_articles:
+        source_stats[a.get('publisher', 'Unknown')] += 1
+        tier_stats[a.get('source_tier', 3)] += 1
+
+    print(f"\n  === 新聞來源品質分布 ===")
+    print(f"    Tier-1 (Bloomberg/Reuters/FT/WSJ): {tier_stats.get(1, 0)} 篇")
+    print(f"    Tier-2 (CNBC/CNN/MarketWatch): {tier_stats.get(2, 0)} 篇")
+    print(f"    Tier-3 (其他): {tier_stats.get(3, 0)} 篇")
+    print(f"    Top 來源: {source_stats.most_common(10)}")
 
     return {
         'articles': all_articles,
         'categorized': categorize_news(all_articles),
         'trending_tickers': get_trending_tickers_from_news(all_articles),
         'date': target_date,
+        'source_stats': {
+            'tier_1': tier_stats.get(1, 0),
+            'tier_2': tier_stats.get(2, 0),
+            'tier_3': tier_stats.get(3, 0),
+            'top_publishers': dict(source_stats.most_common(10)),
+        },
     }
 
 
 if __name__ == '__main__':
-    data = get_news_for_date('2026-02-24')
+    data = get_news_for_date()
     with open('/home/ubuntu/daily-macro-report/reports/news_test.json', 'w') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
     print(f"\n新聞收集完成 - {data['date']}")
     print(f"總新聞數: {len(data['articles'])}")
 
-    print(f"\n前 10 篇新聞:")
-    for a in data['articles'][:10]:
-        src = a.get('source', 'unknown')
+    print(f"\n前 15 篇新聞（按品質排序）:")
+    for a in data['articles'][:15]:
+        tier = a.get('source_tier', 3)
         pub = a.get('publisher', '')
         title = a.get('title', '')[:80]
-        print(f"  [{src}|{pub}] {title}")
-
-    print(f"\n新聞分類:")
-    for cat, articles in data['categorized'].items():
-        if articles:
-            print(f"  {cat}: {len(articles)} articles")
-
-    print(f"\n熱門股票:")
-    for t in data['trending_tickers'][:10]:
-        print(f"  {t['ticker']}: {t['mention_count']} mentions")
+        print(f"  [T{tier}|{pub}] {title}")
