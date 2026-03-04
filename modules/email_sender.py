@@ -113,6 +113,38 @@ def _format_price(price, symbol=""):
         return f"${price:.4f}"
 
 
+def _format_calendar_date(date_str):
+    """格式化經濟日曆日期，支援單一日期和日期範圍
+    
+    支援格式：
+      - '2026-03-05'              → '3/5'
+      - '2026-03-04 ~ 2026-03-08' → '3/4~3/8'
+      - 其他格式                   → 原樣返回
+    """
+    if not date_str:
+        return date_str
+    
+    def _single_date(s):
+        """將 YYYY-MM-DD 轉為 M/D"""
+        s = s.strip()
+        parts = s.split('-')
+        if len(parts) == 3:
+            try:
+                return f"{int(parts[1])}/{int(parts[2])}"
+            except ValueError:
+                return s
+        return s
+    
+    # 處理日期範圍（含 ~ 分隔符）
+    if '~' in date_str:
+        segments = date_str.split('~')
+        formatted = [_single_date(seg) for seg in segments]
+        return '~'.join(formatted)
+    
+    # 單一日期
+    return _single_date(date_str)
+
+
 def generate_email_summary(json_path):
     """從 JSON 數據自動生成精簡摘要郵件正文"""
     
@@ -244,11 +276,7 @@ def generate_email_summary(json_path):
             if isinstance(evt, dict):
                 date = evt.get('date', '')
                 event_name = evt.get('event', '')
-                if date and '-' in date:
-                    parts = date.split('-')
-                    short_date = f"{int(parts[1])}/{int(parts[2])}"
-                else:
-                    short_date = date
+                short_date = _format_calendar_date(date)
                 lines.append(f"- {short_date} {event_name}")
         lines.append("")
     
