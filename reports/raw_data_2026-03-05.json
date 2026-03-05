@@ -1,0 +1,1216 @@
+{
+  "market_data": {
+    "asia_indices": {
+      "日經225": {
+        "name": "日經225",
+        "symbol": "^N225",
+        "current": 54245.5391,
+        "previous": 56279.0508,
+        "change": -2033.5117,
+        "change_pct": -3.61,
+        "volume": 0,
+        "high": 55701.2695,
+        "low": 53618.1992,
+        "timestamp": 1772606703
+      },
+      "台灣加權": {
+        "name": "台灣加權",
+        "symbol": "^TWII",
+        "current": 32828.8789,
+        "previous": 34323.6484,
+        "change": -1494.7695,
+        "change_pct": -4.35,
+        "volume": 0,
+        "high": 34228.75,
+        "low": 32828.8789,
+        "timestamp": 1772602395
+      },
+      "香港恆生": {
+        "name": "香港恆生",
+        "symbol": "^HSI",
+        "current": 25249.4805,
+        "previous": 25768.0801,
+        "change": -518.5996,
+        "change_pct": -2.01,
+        "volume": 0,
+        "high": 25470.0508,
+        "low": 24958.4297,
+        "timestamp": 1772611718
+      },
+      "上證綜指": {
+        "name": "上證綜指",
+        "symbol": "000001.SS",
+        "current": 4082.4741,
+        "previous": 4122.6758,
+        "change": -40.2017,
+        "change_pct": -0.98,
+        "volume": 3502509068,
+        "high": 4106.0396,
+        "low": 4055.4126,
+        "timestamp": 1772607634
+      },
+      "深證成指": {
+        "name": "深證成指",
+        "symbol": "399001.SZ",
+        "current": 13917.752,
+        "previous": 14022.3896,
+        "change": -104.6377,
+        "change_pct": -0.75,
+        "volume": 51144642,
+        "high": 14112.0205,
+        "low": 13854.374,
+        "timestamp": 1772612995
+      },
+      "韓國KOSPI": {
+        "name": "韓國KOSPI",
+        "symbol": "^KS11",
+        "current": 5093.54,
+        "previous": 5791.9102,
+        "change": -698.3701,
+        "change_pct": -12.06,
+        "volume": 0,
+        "high": null,
+        "low": null,
+        "timestamp": 1772615140
+      },
+      "澳洲ASX200": {
+        "name": "澳洲ASX200",
+        "symbol": "^AXJO",
+        "current": 8963.7998,
+        "previous": 9077.2998,
+        "change": -113.5,
+        "change_pct": -1.25,
+        "volume": 0,
+        "high": 8964.0996,
+        "low": 8901.2002,
+        "timestamp": 1772665934
+      }
+    },
+    "europe_indices": {
+      "德國DAX": {
+        "name": "德國DAX",
+        "symbol": "^GDAXI",
+        "current": 24205.3594,
+        "previous": 23790.6504,
+        "change": 414.709,
+        "change_pct": 1.74,
+        "volume": 0,
+        "high": 24242.4902,
+        "low": 23814.8906,
+        "timestamp": 1772643600
+      },
+      "英國FTSE100": {
+        "name": "英國FTSE100",
+        "symbol": "^FTSE",
+        "current": 10567.6504,
+        "previous": 10484.0996,
+        "change": 83.5508,
+        "change_pct": 0.8,
+        "volume": 0,
+        "high": 10588.7998,
+        "low": 10443.4902,
+        "timestamp": 1772642129
+      },
+      "法國CAC40": {
+        "name": "法國CAC40",
+        "symbol": "^FCHI",
+        "current": 8167.73,
+        "previous": 8103.8398,
+        "change": 63.8901,
+        "change_pct": 0.79,
+        "volume": 0,
+        "high": 8210.4102,
+        "low": 8089.8101,
+        "timestamp": 1772643902
+      },
+      "歐洲STOXX50": {
+        "name": "歐洲STOXX50",
+        "symbol": "^STOXX50E",
+        "current": 5870.9199,
+        "previous": 5771.73,
+        "change": 99.1899,
+        "change_pct": 1.72,
+        "volume": 0,
+        "high": null,
+        "low": null,
+        "timestamp": 1772643600
+      },
+      "瑞士SMI": {
+        "name": "瑞士SMI",
+        "symbol": "^SSMI",
+        "current": 13510.7402,
+        "previous": 13404.9297,
+        "change": 105.8105,
+        "change_pct": 0.79,
+        "volume": 0,
+        "high": 13626.3301,
+        "low": 13440.21,
+        "timestamp": 1772641837
+      }
+    },
+    "us_indices": {
+      "S&P 500": {
+        "name": "S&P 500",
+        "symbol": "^GSPC",
+        "current": 6869.5,
+        "previous": 6816.6299,
+        "change": 52.8701,
+        "change_pct": 0.78,
+        "volume": 3193784000,
+        "high": 6885.9399,
+        "low": 6811.6401,
+        "timestamp": 1772660317
+      },
+      "納斯達克": {
+        "name": "納斯達克",
+        "symbol": "^IXIC",
+        "current": 22807.4844,
+        "previous": 22516.6895,
+        "change": 290.7949,
+        "change_pct": 1.29,
+        "volume": 9394399000,
+        "high": 22891.8809,
+        "low": 22570.666,
+        "timestamp": 1772662559
+      },
+      "道瓊斯": {
+        "name": "道瓊斯",
+        "symbol": "^DJI",
+        "current": 48739.4102,
+        "previous": 48501.2695,
+        "change": 238.1406,
+        "change_pct": 0.49,
+        "volume": 511380236,
+        "high": 48854.0508,
+        "low": 48354.3711,
+        "timestamp": 1772660374
+      },
+      "羅素2000": {
+        "name": "羅素2000",
+        "symbol": "^RUT",
+        "current": 2636.0122,
+        "previous": 2608.3601,
+        "change": 27.6521,
+        "change_pct": 1.06,
+        "volume": 0,
+        "high": 2644.1492,
+        "low": 2608.5007,
+        "timestamp": 1772659811
+      },
+      "費城半導體": {
+        "name": "費城半導體",
+        "symbol": "^SOX",
+        "current": 7914.4775,
+        "previous": 7764.8799,
+        "change": 149.5977,
+        "change_pct": 1.93,
+        "volume": 0,
+        "high": 7959.8501,
+        "low": 7807.2637,
+        "timestamp": 1772662559
+      }
+    },
+    "commodities": {
+      "黃金": {
+        "name": "黃金",
+        "symbol": "GC=F",
+        "current": 5163.6001,
+        "previous": 5107.3999,
+        "change": 56.2002,
+        "change_pct": 1.1,
+        "volume": 801,
+        "high": 5166.7002,
+        "low": 5152.0,
+        "timestamp": 1772666561
+      },
+      "白銀": {
+        "name": "白銀",
+        "symbol": "SI=F",
+        "current": 83.7,
+        "previous": 82.923,
+        "change": 0.777,
+        "change_pct": 0.94,
+        "volume": 220,
+        "high": 84.06,
+        "low": 83.455,
+        "timestamp": 1772666526
+      },
+      "原油(WTI)": {
+        "name": "原油(WTI)",
+        "symbol": "CL=F",
+        "current": 76.0,
+        "previous": 74.56,
+        "change": 1.44,
+        "change_pct": 1.93,
+        "volume": 1724,
+        "high": 76.19,
+        "low": 75.71,
+        "timestamp": 1772666576
+      },
+      "布蘭特原油": {
+        "name": "布蘭特原油",
+        "symbol": "BZ=F",
+        "current": 82.46,
+        "previous": 81.4,
+        "change": 1.06,
+        "change_pct": 1.3,
+        "volume": 58,
+        "high": 82.61,
+        "low": 82.34,
+        "timestamp": 1772666570
+      },
+      "銅": {
+        "name": "銅",
+        "symbol": "HG=F",
+        "current": 5.9025,
+        "previous": 5.7735,
+        "change": 0.129,
+        "change_pct": 2.23,
+        "volume": 155,
+        "high": 5.91,
+        "low": 5.901,
+        "timestamp": 1772666450
+      },
+      "天然氣": {
+        "name": "天然氣",
+        "symbol": "NG=F",
+        "current": 2.944,
+        "previous": 3.054,
+        "change": -0.11,
+        "change_pct": -3.6,
+        "volume": 353,
+        "high": 2.947,
+        "low": 2.93,
+        "timestamp": 1772666556
+      }
+    },
+    "forex": {
+      "美元指數": {
+        "name": "美元指數",
+        "symbol": "DX-Y.NYB",
+        "current": 98.775,
+        "previous": 99.05,
+        "change": -0.275,
+        "change_pct": -0.28,
+        "volume": 0,
+        "high": 99.329,
+        "low": 98.7,
+        "timestamp": 1772665499
+      },
+      "EUR/USD": {
+        "name": "EUR/USD",
+        "symbol": "EURUSD=X",
+        "current": 1.164,
+        "previous": 1.1697,
+        "change": -0.0057,
+        "change_pct": -0.49,
+        "volume": 0,
+        "high": 1.1643,
+        "low": 1.1637,
+        "timestamp": 1772667131
+      },
+      "USD/JPY": {
+        "name": "USD/JPY",
+        "symbol": "JPY=X",
+        "current": 157.044,
+        "previous": 157.257,
+        "change": -0.213,
+        "change_pct": -0.14,
+        "volume": 0,
+        "high": 157.089,
+        "low": 156.948,
+        "timestamp": 1772667191
+      },
+      "GBP/USD": {
+        "name": "GBP/USD",
+        "symbol": "GBPUSD=X",
+        "current": 1.3368,
+        "previous": 1.3411,
+        "change": -0.0042,
+        "change_pct": -0.32,
+        "volume": 0,
+        "high": 1.3375,
+        "low": 1.3368,
+        "timestamp": 1772667191
+      },
+      "USD/CNY": {
+        "name": "USD/CNY",
+        "symbol": "CNY=X",
+        "current": 6.8964,
+        "previous": 6.882,
+        "change": 0.0144,
+        "change_pct": 0.21,
+        "volume": 0,
+        "high": 6.927,
+        "low": 6.8964,
+        "timestamp": 1772658117
+      },
+      "USD/TWD": {
+        "name": "USD/TWD",
+        "symbol": "TWD=X",
+        "current": 31.629,
+        "previous": 31.535,
+        "change": 0.094,
+        "change_pct": 0.3,
+        "volume": 0,
+        "high": 31.629,
+        "low": 31.629,
+        "timestamp": 1772666309
+      }
+    },
+    "bonds": {
+      "美國2年期": {
+        "name": "美國2年期",
+        "symbol": "^IRX",
+        "current": 3.595,
+        "previous": 3.595,
+        "change": 0.0,
+        "change_pct": 0.0,
+        "volume": 0,
+        "high": 3.595,
+        "low": 3.59,
+        "timestamp": 1772654395
+      },
+      "美國10年期": {
+        "name": "美國10年期",
+        "symbol": "^TNX",
+        "current": 4.08,
+        "previous": 4.056,
+        "change": 0.024,
+        "change_pct": 0.59,
+        "volume": 0,
+        "high": 4.088,
+        "low": 4.063,
+        "timestamp": 1772654395
+      },
+      "美國30年期": {
+        "name": "美國30年期",
+        "symbol": "^TYX",
+        "current": 4.716,
+        "previous": 4.702,
+        "change": 0.014,
+        "change_pct": 0.3,
+        "volume": 0,
+        "high": 4.732,
+        "low": 4.705,
+        "timestamp": 1772654395
+      }
+    },
+    "crypto": {
+      "Bitcoin": {
+        "name": "Bitcoin",
+        "symbol": "BTC-USD",
+        "current": 72538.7188,
+        "previous": 68293.6484,
+        "change": 4245.0703,
+        "change_pct": 6.22,
+        "volume": 74032750592,
+        "high": 73984.5859,
+        "low": 67544.6797,
+        "timestamp": 1772667000
+      },
+      "Ethereum": {
+        "name": "Ethereum",
+        "symbol": "ETH-USD",
+        "current": 2125.3735,
+        "previous": 1982.7689,
+        "change": 142.6046,
+        "change_pct": 7.19,
+        "volume": 33105254400,
+        "high": 2198.0137,
+        "low": 1948.5133,
+        "timestamp": 1772667000
+      },
+      "BNB": {
+        "name": "BNB",
+        "symbol": "BNB-USD",
+        "current": 658.3455,
+        "previous": 633.8309,
+        "change": 24.5146,
+        "change_pct": 3.87,
+        "volume": 2115294848,
+        "high": 664.3799,
+        "low": 627.6476,
+        "timestamp": 1772667000
+      },
+      "Solana": {
+        "name": "Solana",
+        "symbol": "SOL-USD",
+        "current": 90.7332,
+        "previous": 87.0198,
+        "change": 3.7135,
+        "change_pct": 4.27,
+        "volume": 6911225344,
+        "high": 93.7322,
+        "low": 85.0319,
+        "timestamp": 1772667060
+      },
+      "XRP": {
+        "name": "XRP",
+        "symbol": "XRP-USD",
+        "current": 1.4278,
+        "previous": 1.3606,
+        "change": 0.0672,
+        "change_pct": 4.94,
+        "volume": 4363784704,
+        "high": 1.4666,
+        "low": 1.3475,
+        "timestamp": 1772667000
+      },
+      "Cardano": {
+        "name": "Cardano",
+        "symbol": "ADA-USD",
+        "current": 0.275,
+        "previous": 0.2629,
+        "change": 0.0121,
+        "change_pct": 4.59,
+        "volume": 985410112,
+        "high": 0.2842,
+        "low": 0.2592,
+        "timestamp": 1772667060
+      },
+      "Dogecoin": {
+        "name": "Dogecoin",
+        "symbol": "DOGE-USD",
+        "current": 0.0995,
+        "previous": 0.09,
+        "change": 0.0094,
+        "change_pct": 10.46,
+        "volume": 2533634560,
+        "high": 0.1039,
+        "low": 0.0888,
+        "timestamp": 1772667000
+      }
+    }
+  },
+  "news_events": [
+    {
+      "title": "美國法院命令停止計算IEEPA關稅以推進退款程序",
+      "description": "美國法院當日下令政府停止計算基於《國際緊急經濟權力法》（IEEPA）的關稅，這將影響進口商的退款申請進程。美國政府同時表示若需退款，將支付利息，顯示關稅政策面臨法律挑戰。",
+      "impact_level": "中",
+      "affected_markets": "美國",
+      "market_direction": "中性",
+      "related_tickers": [],
+      "ticker_impact": {}
+    },
+    {
+      "title": "美國郵政服務因現金短缺聘請重組顧問",
+      "description": "美國郵政服務（USPS）當日宣布聘請重組公司協助應對現金流緊張問題，顯示其財務壓力加劇，可能影響郵政服務的運營效率和未來資本支出。",
+      "impact_level": "中",
+      "affected_markets": "美國",
+      "market_direction": "中性",
+      "related_tickers": [],
+      "ticker_impact": {}
+    },
+    {
+      "title": "美國對伊朗加大軍事打擊力度，伊朗否認和平談判",
+      "description": "美國當日宣布將加強對伊朗的軍事打擊，並首次使用魚雷擊沉伊朗船隻，這是二戰以來首次。伊朗方面否認有和平談判的意向，地緣政治緊張局勢升溫，影響全球能源與安全市場。",
+      "impact_level": "高",
+      "affected_markets": "全球",
+      "market_direction": "利空（整體市場因地緣政治風險上升）",
+      "related_tickers": [],
+      "ticker_impact": {}
+    },
+    {
+      "title": "霍爾木茲海峽重要航運活動大幅減少",
+      "description": "當日報導顯示，受地緣政治緊張影響，霍爾木茲海峽的航運活動大幅下降，該海峽是全球重要的石油運輸通道，運輸中斷可能推高油價並影響全球能源供應鏈。",
+      "impact_level": "高",
+      "affected_markets": "全球",
+      "market_direction": "利空（對依賴石油進口的國家和企業）",
+      "related_tickers": [],
+      "ticker_impact": {}
+    },
+    {
+      "title": "美國2月新增就業人數達63,000人，ADP數據顯示就業持續增長",
+      "description": "根據當日公布的ADP數據，美國2月份新增就業人數為63,000人，顯示勞動市場仍具韌性，對經濟復甦形成支持。",
+      "impact_level": "中",
+      "affected_markets": "美國",
+      "market_direction": "利多（勞動市場改善利好經濟及金融市場）",
+      "related_tickers": [],
+      "ticker_impact": {}
+    },
+    {
+      "title": "歐盟預計將獲得豁免，不受美國普遍關稅提升至15%影響",
+      "description": "歐盟當日表示預期將獲得美國普遍關稅提升至15%的豁免，這將減少歐盟出口商的關稅負擔，緩解貿易緊張局勢。",
+      "impact_level": "中",
+      "affected_markets": "歐洲",
+      "market_direction": "利多（歐盟出口商）",
+      "related_tickers": [],
+      "ticker_impact": {}
+    },
+    {
+      "title": "比爾·蓋茨支持的TerraPower獲得美國先進核反應堆批准",
+      "description": "當日消息指出，TerraPower公司獲得美國政府批准建造先進核反應堆，標誌著核能技術發展取得重要進展，對能源產業長期結構性轉型具積極意義。",
+      "impact_level": "中",
+      "affected_markets": "美國",
+      "market_direction": "利多（核能及清潔能源相關企業）",
+      "related_tickers": [],
+      "ticker_impact": {}
+    },
+    {
+      "title": "美元因伊朗外交接觸報導大幅下滑，創一個月最大跌幅",
+      "description": "受有關美國與伊朗外交接觸的報導影響，美元當日出現一個月以來最大跌幅，反映市場對地緣政治風險緩解的預期。",
+      "impact_level": "中",
+      "affected_markets": "全球",
+      "market_direction": "中性（美元貶值利好出口商，利空進口商）",
+      "related_tickers": [],
+      "ticker_impact": {}
+    }
+  ],
+  "index_analysis": {
+    "asia_analysis": "亞洲主要股市普遍下跌，尤其是韓國KOSPI大幅下挫超過12%，反映出地緣政治緊張對區域市場的強烈負面影響。美國對伊朗軍事打擊升級及霍爾木茲海峽航運活動減少，推高能源價格，對依賴進口能源的亞洲經濟體造成壓力。日經225、台灣加權及香港恆生指數的跌幅亦顯示投資人對全球供應鏈中斷及經濟增長前景的擔憂。中國大陸股市跌幅較小，反映市場對內需及政策支持的相對信心。",
+    "europe_analysis": "歐洲股市普遍上漲，主要受到歐盟預期獲得美國關稅豁免的利好消息推動，緩解了貿易緊張局勢。德國DAX及STOXX50指數領漲，顯示投資人對歐洲出口商的盈利前景持樂觀態度。美元走弱亦有助提升歐洲出口競爭力，進一步提振市場情緒。整體而言，歐洲市場反映出對地緣政治風險的相對抗衡及貿易政策改善的積極反應。",
+    "us_analysis": "美國主要股指小幅上漲，納斯達克及費城半導體指數表現尤為強勁，反映科技及半導體板塊對勞動市場韌性及核能技術進展的正面回應。儘管地緣政治風險升高，但美國法院停止計算IEEPA關稅及郵政服務重組消息對市場影響有限。美元大幅下跌則反映市場對美伊外交接觸的期待，對出口導向企業形成支撐。",
+    "overall_summary": "全球市場今日呈現明顯分化，亞洲市場因地緣政治風險及能源供應擔憂而大幅下挫，歐洲市場則受惠於貿易政策利好及美元走弱而上漲，美國市場在勞動力市場韌性及科技板塊帶動下維持溫和上揚。地緣政治緊張依然是影響市場情緒的核心因素，能源供應鏈中斷及貿易政策動向將持續左右未來走勢。"
+  },
+  "stock_analysis": {
+    "MRNA": "Moderna股價大幅上漲主要受益於疫苗需求持續穩定及市場對其新產品管線的樂觀預期，成交量放大顯示資金積極進場。",
+    "COIN": "Coinbase股價大幅上揚，可能因加密貨幣市場回暖及公司近期相關新聞提振投資人信心，成交量放大反映市場活躍度提升。",
+    "ROST": "Ross Stores股價上漲反映零售業績改善及消費者信心回升，成交量顯著增加顯示買盤積極介入。",
+    "CRWD": "CrowdStrike股價上漲受益於網路安全需求持續增長及公司新產品發布相關消息，成交量增加支持股價走強。",
+    "NRG": "NRG Energy股價小幅上漲，主要因能源需求穩定及市場對綠能轉型的期待，成交量顯著放大顯示買盤活躍。",
+    "BF-B": "Brown–Forman股價下跌可能受到消費者支出放緩及高端酒類市場競爭加劇影響，成交量放大反映賣壓增加。",
+    "6594.T": "Nidec股價上漲，受惠於電動車及工業自動化需求增長，成交量大幅放大顯示市場對其成長前景看好。",
+    "4661.T": "Oriental Land股價小幅上漲，反映日本旅遊業復甦及主題樂園營運改善，成交量適中支持股價穩健表現。",
+    "9602.T": "Toho股價上漲，主要因電影及娛樂產業回暖帶動業績改善，成交量增加顯示市場關注度提升。",
+    "9918.TW": "欣天然股價大幅上漲且成交量爆增，可能因市場對其產品需求激增或重大利多消息預期，吸引大量買盤進場。",
+    "3054.TW": "立萬利股價強勁上漲，反映公司基本面改善及產業需求提升，成交量放大顯示買方積極布局。",
+    "9931.TW": "欣高股價顯著上漲，成交量大幅增加，顯示市場對其業績成長及未來展望持樂觀態度。",
+    "2601.TW": "益航股價上漲，可能受惠於航運需求回升及全球貿易活絡，成交量增加支持股價走勢。",
+    "3036.TW": "文曄股價上漲反映電子零組件需求強勁，成交量放大顯示市場資金流入積極。",
+    "2616.TW": "山隆股價上漲，受益於能源價格回升及公司營運表現改善，成交量增加反映買盤活躍。",
+    "6141.TW": "柏承股價上漲，主要因半導體設備需求持續增長，成交量放大顯示市場看好其成長潛力。",
+    "6133.TW": "金橋股價上揚，反映電子產業景氣回暖及公司營運穩健，成交量顯著增加支持股價上漲。",
+    "0042.HK": "東北電氣股價大幅飆升，成交量放大，可能因市場預期公司將受益於新能源政策推動及基建投資增加。",
+    "0187.HK": "京城機電股份股價強勁上漲，成交量激增，顯示市場對其在機電設備領域的競爭優勢及訂單增長抱持樂觀。",
+    "1072.HK": "東方電氣股價上漲，受惠於電力設備需求回暖及新能源項目推進，成交量增加支持股價走強。",
+    "0895.HK": "東江環保股價上漲，主要因環保產業政策利多及公司業績改善，成交量顯著放大反映市場熱絡。",
+    "2068.HK": "中鋁國際股價上漲，受益於有色金屬價格回升及下游需求增強，成交量大幅增加顯示買盤積極。",
+    "1108.HK": "凱盛新能股價上漲，反映新能源產業景氣提升及公司技術優勢，成交量放大支持股價表現。",
+    "2429.HK": "友寶在線股價上漲，可能因消費電子及自動販賣機需求回暖，成交量增加顯示市場看好其成長性。",
+    "2582.HK": "國富氫能股價上漲，受惠於氫能產業政策支持及市場對清潔能源的期待，成交量增加反映投資人熱情。"
+  },
+  "calendar_events": [
+    {
+      "date": "2026-03-05",
+      "event": "美國2月非農就業報告",
+      "country": "美國",
+      "importance": "★★★",
+      "description": "非農就業數據是衡量美國勞動市場健康的重要指標，直接影響美聯儲貨幣政策走向。若就業增長強勁，可能加大加息預期，推升美元及美債收益率；反之則可能引發市場對經濟放緩的擔憂。",
+      "consensus": "新增就業人數約20萬人，失業率維持3.8%"
+    },
+    {
+      "date": "2026-03-06",
+      "event": "美國2月ISM製造業指數",
+      "country": "美國",
+      "importance": "★★★",
+      "description": "ISM製造業指數反映製造業景氣狀況，對判斷經濟成長動能及企業投資意願具指標意義。數據若優於預期，可能提振市場風險偏好，反之則增加經濟放緩疑慮。",
+      "consensus": "預期指數約為49.5，略低於50的擴張臨界點"
+    },
+    {
+      "date": "2026-03-07",
+      "event": "中國2月CPI及PPI數據",
+      "country": "中國",
+      "importance": "★★★",
+      "description": "CPI和PPI數據反映通脹壓力及生產端成本變化，對中國央行貨幣政策及市場流動性預期影響重大。近期全球能源價格波動及供應鏈問題，可能使數據波動加劇。",
+      "consensus": "CPI同比預期2.3%，PPI同比預期-1.0%"
+    },
+    {
+      "date": "2026-03-05",
+      "event": "印度盧比匯率及通脹數據",
+      "country": "印度",
+      "importance": "★★★",
+      "description": "印度盧比近期因油價上漲而創新低，推升通脹壓力。通脹數據將影響印度央行的貨幣政策決策，若通脹持續走高，可能加大加息壓力，影響新興市場資金流動。",
+      "consensus": "2月消費者物價指數（CPI）預計約6.5%"
+    },
+    {
+      "date": "2026-03-04",
+      "event": "美國2月房屋銷售數據",
+      "country": "美國",
+      "importance": "★★",
+      "description": "房屋銷售數據反映美國房地產市場活躍度，近期因房主持有期延長，市場流動性受限，影響房價及相關消費。數據將影響市場對美國經濟韌性的判斷。",
+      "consensus": "新屋銷售年化約65萬戶"
+    },
+    {
+      "date": "2026-03-08",
+      "event": "美國2月消費者信心指數",
+      "country": "美國",
+      "importance": "★★",
+      "description": "消費者信心指數反映家庭消費意願，是經濟成長的重要驅動力。若信心指數下滑，可能預示消費支出減緩，影響經濟增長預期及股市表現。",
+      "consensus": "預期指數約為102"
+    }
+  ],
+  "hot_stocks": {
+    "美股": {
+      "inflow": [
+        {
+          "symbol": "MRNA",
+          "name": "Moderna",
+          "current": 57.8,
+          "change_pct": 15.99,
+          "volume_ratio": 2.29,
+          "volume": 23039454,
+          "avg_volume": 10067311,
+          "flow": "inflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "COIN",
+          "name": "Coinbase",
+          "current": 208.93,
+          "change_pct": 14.57,
+          "volume_ratio": 1.72,
+          "volume": 27099602,
+          "avg_volume": 15758300,
+          "flow": "inflow",
+          "news_mentions": 2
+        },
+        {
+          "symbol": "ROST",
+          "name": "Ross Stores",
+          "current": 213.52,
+          "change_pct": 8.03,
+          "volume_ratio": 2.67,
+          "volume": 6690363,
+          "avg_volume": 2505550,
+          "flow": "inflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "CRWD",
+          "name": "CrowdStrike",
+          "current": 407.68,
+          "change_pct": 4.15,
+          "volume_ratio": 1.58,
+          "volume": 8295863,
+          "avg_volume": 5262156,
+          "flow": "inflow",
+          "news_mentions": 2
+        },
+        {
+          "symbol": "NRG",
+          "name": "NRG Energy",
+          "current": 163.54,
+          "change_pct": 0.91,
+          "volume_ratio": 3.25,
+          "volume": 9034850,
+          "avg_volume": 2783828,
+          "flow": "inflow",
+          "news_mentions": 0
+        }
+      ],
+      "outflow": [
+        {
+          "symbol": "BF-B",
+          "name": "Brown–Forman",
+          "current": 26.26,
+          "change_pct": -6.65,
+          "volume_ratio": 3.91,
+          "volume": 19779443,
+          "avg_volume": 5056306,
+          "flow": "outflow",
+          "news_mentions": 0
+        }
+      ]
+    },
+    "日股": {
+      "inflow": [
+        {
+          "symbol": "6594.T",
+          "name": "Nidec",
+          "current": 2420.0,
+          "change_pct": 6.8,
+          "volume_ratio": 7.45,
+          "volume": 40829100,
+          "avg_volume": 5477972,
+          "flow": "inflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "4661.T",
+          "name": "Oriental Land",
+          "current": 2794.0,
+          "change_pct": 2.87,
+          "volume_ratio": 1.62,
+          "volume": 7445700,
+          "avg_volume": 4605256,
+          "flow": "inflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "9602.T",
+          "name": "Toho",
+          "current": 1521.5,
+          "change_pct": 2.11,
+          "volume_ratio": 1.68,
+          "volume": 5511400,
+          "avg_volume": 3289928,
+          "flow": "inflow",
+          "news_mentions": 0
+        }
+      ],
+      "outflow": []
+    },
+    "台股": {
+      "inflow": [
+        {
+          "symbol": "9918.TW",
+          "name": "欣天然",
+          "current": 46.25,
+          "change_pct": 9.99,
+          "volume_ratio": 46.27,
+          "volume": 1548243,
+          "avg_volume": 33458,
+          "flow": "inflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "3054.TW",
+          "name": "立萬利",
+          "current": 41.5,
+          "change_pct": 9.93,
+          "volume_ratio": 3.06,
+          "volume": 703545,
+          "avg_volume": 229737,
+          "flow": "inflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "9931.TW",
+          "name": "欣高",
+          "current": 38.85,
+          "change_pct": 9.9,
+          "volume_ratio": 39.68,
+          "volume": 883057,
+          "avg_volume": 22257,
+          "flow": "inflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "2601.TW",
+          "name": "益航",
+          "current": 6.57,
+          "change_pct": 9.87,
+          "volume_ratio": 5.17,
+          "volume": 10331462,
+          "avg_volume": 1997627,
+          "flow": "inflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "3036.TW",
+          "name": "文曄",
+          "current": 195.5,
+          "change_pct": 9.83,
+          "volume_ratio": 3.44,
+          "volume": 30871111,
+          "avg_volume": 8973631,
+          "flow": "inflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "2616.TW",
+          "name": "山隆",
+          "current": 18.0,
+          "change_pct": 9.76,
+          "volume_ratio": 3.12,
+          "volume": 779261,
+          "avg_volume": 249890,
+          "flow": "inflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "6141.TW",
+          "name": "柏承",
+          "current": 16.4,
+          "change_pct": 9.7,
+          "volume_ratio": 6.35,
+          "volume": 4051900,
+          "avg_volume": 637879,
+          "flow": "inflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "6133.TW",
+          "name": "金橋",
+          "current": 27.35,
+          "change_pct": 8.96,
+          "volume_ratio": 6.25,
+          "volume": 18663967,
+          "avg_volume": 2988617,
+          "flow": "inflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "6831.TW",
+          "name": "邁科",
+          "current": 323.5,
+          "change_pct": 8.01,
+          "volume_ratio": 2.5,
+          "volume": 3814032,
+          "avg_volume": 1525384,
+          "flow": "inflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "1582.TW",
+          "name": "信錦",
+          "current": 81.4,
+          "change_pct": 6.27,
+          "volume_ratio": 10.92,
+          "volume": 16629452,
+          "avg_volume": 1523133,
+          "flow": "inflow",
+          "news_mentions": 0
+        }
+      ],
+      "outflow": [
+        {
+          "symbol": "3701.TW",
+          "name": "大眾控",
+          "current": 64.0,
+          "change_pct": -9.99,
+          "volume_ratio": 3.78,
+          "volume": 26567347,
+          "avg_volume": 7028819,
+          "flow": "outflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "6456.TW",
+          "name": "GIS-KY",
+          "current": 52.0,
+          "change_pct": -9.88,
+          "volume_ratio": 2.52,
+          "volume": 13146860,
+          "avg_volume": 5208025,
+          "flow": "outflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "2102.TW",
+          "name": "泰豐",
+          "current": 19.0,
+          "change_pct": -9.52,
+          "volume_ratio": 3.5,
+          "volume": 2275336,
+          "avg_volume": 650921,
+          "flow": "outflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "6909.TW",
+          "name": "創控",
+          "current": 39.45,
+          "change_pct": -8.79,
+          "volume_ratio": 2.6,
+          "volume": 1183040,
+          "avg_volume": 454635,
+          "flow": "outflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "3041.TW",
+          "name": "揚智",
+          "current": 22.3,
+          "change_pct": -7.85,
+          "volume_ratio": 2.61,
+          "volume": 2091127,
+          "avg_volume": 802251,
+          "flow": "outflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "2605.TW",
+          "name": "新興",
+          "current": 35.0,
+          "change_pct": -7.53,
+          "volume_ratio": 3.12,
+          "volume": 57721439,
+          "avg_volume": 18519138,
+          "flow": "outflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "2024.TW",
+          "name": "志聯",
+          "current": 15.3,
+          "change_pct": -7.27,
+          "volume_ratio": 3.64,
+          "volume": 50101,
+          "avg_volume": 13777,
+          "flow": "outflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "6230.TW",
+          "name": "尼得科超眾",
+          "current": 161.0,
+          "change_pct": -6.94,
+          "volume_ratio": 3.39,
+          "volume": 1823198,
+          "avg_volume": 537661,
+          "flow": "outflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "2332.TW",
+          "name": "友訊",
+          "current": 14.45,
+          "change_pct": -6.77,
+          "volume_ratio": 2.9,
+          "volume": 5690326,
+          "avg_volume": 1963916,
+          "flow": "outflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "2615.TW",
+          "name": "萬海",
+          "current": 81.5,
+          "change_pct": -6.32,
+          "volume_ratio": 8.35,
+          "volume": 120926904,
+          "avg_volume": 14478588,
+          "flow": "outflow",
+          "news_mentions": 0
+        }
+      ]
+    },
+    "港股": {
+      "inflow": [
+        {
+          "symbol": "0042.HK",
+          "name": "東北電氣",
+          "current": 0.47,
+          "change_pct": 31.94,
+          "volume_ratio": 15.24,
+          "volume": 99914000,
+          "avg_volume": 6554000,
+          "flow": "inflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "0187.HK",
+          "name": "京城機電股份",
+          "current": 5.15,
+          "change_pct": 12.45,
+          "volume_ratio": 33.23,
+          "volume": 313521700,
+          "avg_volume": 9434375,
+          "flow": "inflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "1072.HK",
+          "name": "東方電氣",
+          "current": 38.02,
+          "change_pct": 11.36,
+          "volume_ratio": 2.11,
+          "volume": 43009574,
+          "avg_volume": 20346666,
+          "flow": "inflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "0895.HK",
+          "name": "東江環保",
+          "current": 2.51,
+          "change_pct": 9.13,
+          "volume_ratio": 20.45,
+          "volume": 38213130,
+          "avg_volume": 1868321,
+          "flow": "inflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "2068.HK",
+          "name": "中鋁國際",
+          "current": 2.89,
+          "change_pct": 7.84,
+          "volume_ratio": 25.78,
+          "volume": 162361100,
+          "avg_volume": 6297188,
+          "flow": "inflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "1108.HK",
+          "name": "凱盛新能",
+          "current": 4.21,
+          "change_pct": 7.4,
+          "volume_ratio": 3.07,
+          "volume": 11484000,
+          "avg_volume": 3738604,
+          "flow": "inflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "2429.HK",
+          "name": "友寶在線",
+          "current": 2.35,
+          "change_pct": 7.31,
+          "volume_ratio": 4.27,
+          "volume": 25643000,
+          "avg_volume": 6011281,
+          "flow": "inflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "2582.HK",
+          "name": "國富氫能",
+          "current": 33.8,
+          "change_pct": 6.22,
+          "volume_ratio": 2.44,
+          "volume": 15323690,
+          "avg_volume": 6287548,
+          "flow": "inflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "3986.HK",
+          "name": "兆易創新",
+          "current": 367.2,
+          "change_pct": 6.13,
+          "volume_ratio": 1.69,
+          "volume": 2401480,
+          "avg_volume": 1419038,
+          "flow": "inflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "1378.HK",
+          "name": "China Hongqiao Group",
+          "current": 38.92,
+          "change_pct": 6.05,
+          "volume_ratio": 1.67,
+          "volume": 54635951,
+          "avg_volume": 32671737,
+          "flow": "inflow",
+          "news_mentions": 0
+        }
+      ],
+      "outflow": [
+        {
+          "symbol": "1635.HK",
+          "name": "大眾公用",
+          "current": 3.92,
+          "change_pct": -21.6,
+          "volume_ratio": 8.55,
+          "volume": 874147807,
+          "avg_volume": 102259263,
+          "flow": "outflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "2866.HK",
+          "name": "中遠海發",
+          "current": 1.31,
+          "change_pct": -13.82,
+          "volume_ratio": 5.21,
+          "volume": 512465450,
+          "avg_volume": 98438812,
+          "flow": "outflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "0568.HK",
+          "name": "山東墨龍",
+          "current": 10.27,
+          "change_pct": -12.89,
+          "volume_ratio": 4.21,
+          "volume": 554900557,
+          "avg_volume": 131763766,
+          "flow": "outflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "1033.HK",
+          "name": "中石化油服",
+          "current": 1.35,
+          "change_pct": -11.18,
+          "volume_ratio": 4.43,
+          "volume": 1503882000,
+          "avg_volume": 339428892,
+          "flow": "outflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "1138.HK",
+          "name": "中遠海能",
+          "current": 18.73,
+          "change_pct": -10.38,
+          "volume_ratio": 3.15,
+          "volume": 144262896,
+          "avg_volume": 45853059,
+          "flow": "outflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "3768.HK",
+          "name": "滇池水務",
+          "current": 0.65,
+          "change_pct": -5.8,
+          "volume_ratio": 2.86,
+          "volume": 216000,
+          "avg_volume": 75643,
+          "flow": "outflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "1919.HK",
+          "name": "中遠海控",
+          "current": 15.6,
+          "change_pct": -4.24,
+          "volume_ratio": 2.56,
+          "volume": 78459246,
+          "avg_volume": 30610428,
+          "flow": "outflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "6138.HK",
+          "name": "哈爾濱銀行",
+          "current": 0.35,
+          "change_pct": -4.11,
+          "volume_ratio": 2.75,
+          "volume": 3095000,
+          "avg_volume": 1124250,
+          "flow": "outflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "2410.HK",
+          "name": "同源康醫藥－Ｂ",
+          "current": 10.37,
+          "change_pct": -3.98,
+          "volume_ratio": 3.73,
+          "volume": 6127187,
+          "avg_volume": 1643410,
+          "flow": "outflow",
+          "news_mentions": 0
+        },
+        {
+          "symbol": "0267.HK",
+          "name": "CITIC Limited",
+          "current": 11.6,
+          "change_pct": -3.89,
+          "volume_ratio": 2.59,
+          "volume": 43981094,
+          "avg_volume": 16995498,
+          "flow": "outflow",
+          "news_mentions": 0
+        }
+      ]
+    }
+  },
+  "holiday_alerts": {
+    "today_closed": [],
+    "tomorrow_closed": [],
+    "next_business_day": "2026-03-06",
+    "upcoming_holidays": [],
+    "has_alerts": false
+  },
+  "report_date": "2026-03-05",
+  "generated_at": "2026-03-05T07:39:47.962223"
+}
