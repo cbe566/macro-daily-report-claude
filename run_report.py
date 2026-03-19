@@ -85,7 +85,7 @@ def collect_market_data(report_type='daily'):
         try:
             emerging = get_emerging_indices()
             if emerging:
-                data['emerging_indices'] = {item['name']: item for item in emerging}
+                data['emerging_indices'] = emerging
                 log(f"  ✓ 新興市場指數: {len(emerging)} 項")
         except Exception as e:
             log(f"  ✗ 新興市場指數: {e}")
