@@ -313,7 +313,7 @@ td.name-cell {
     border-top: 1px solid #ddd;
     font-size: 7.5pt;
     color: #95a5a6;
-    text-align: center;
+    text-align: left;
     page-break-before: avoid;
 }
 
@@ -1413,9 +1413,21 @@ def generate_html_report(market_data, news_events, hot_stocks, stock_analysis,
 
     # 底部
     html += f"""
-<div class="footer">
-    <strong>報告生成時間</strong>：{datetime.now().strftime('%Y-%m-%d %H:%M')} (UTC+8)<br>
-    <strong>資料來源</strong>：Yahoo Finance、Polygon.io、S&P Global、CNBC、Investing.com
+<div class="footer" style="line-height:1.6;">
+    <strong style="font-size:8.5pt; color:#2c3e50;">何宣逸</strong><br>
+    <span>副總裁 ｜ 私人財富管理部</span><br>
+    <span>華泰金融控股（香港）有限公司</span><br>
+    <span>電話：+852 3658 6180 ｜ 手機：+852 6765 0336 / +86 130 0329 5233</span><br>
+    <span>電郵：jamieho@htsc.com</span><br>
+    <span>地址：香港皇后大道中99號中環中心69樓</span><br>
+    <span style="font-size:6.5pt; color:#aaa;">華泰證券股份有限公司全資附屬公司 (SSE: 601688; SEHK: 6886; LSE: HTSC)</span>
+</div>
+
+<div class="footer" style="margin-top:10px; padding-top:8px; border-top:1px solid #ddd;">
+    <strong>報告製作時間</strong>：{datetime.now().strftime('%Y-%m-%d %H:%M')} (UTC+8)<br>
+    <strong>資料來源</strong>：Yahoo Finance、Polygon.io、S&P Global、CNBC、Investing.com、CNN Fear &amp; Greed Index<br>
+    資金流向數據基於ETF Chaikin Money Flow (CMF) × 成交量計算<br><br>
+    <em>本報告僅供參考，不構成任何投資建議。投資有風險，入市需謹慎。</em>
 </div>
 
 </body>

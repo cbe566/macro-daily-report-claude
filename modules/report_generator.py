@@ -481,8 +481,8 @@ def generate_daily_report(market_data, news_events, hot_stocks, stock_analysis,
     md += generate_calendar_section(calendar_events)
 
     # 底部資料來源
-    md += f"*報告生成時間：{datetime.now().strftime('%Y-%m-%d %H:%M')} (UTC+8)*\n\n"
-    md += "**資料來源**：Yahoo Finance、Polygon.io、S&P Global、CNBC、Investing.com\n"
+    md += f"*報告製作時間：{datetime.now().strftime('%Y-%m-%d %H:%M')} (UTC+8)*\n\n"
+    md += "**資料來源**：Yahoo Finance、Polygon.io、S&P Global、CNBC、Investing.com、CNN Fear & Greed Index\n"
 
     return md
 
