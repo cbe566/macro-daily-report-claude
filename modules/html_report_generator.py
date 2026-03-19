@@ -1313,15 +1313,13 @@ def _gen_calendar_section(calendar_events):
             imp_style = 'color:#999;'
 
         desc = event.get('description', '')
-        if len(desc) > 60:
-            desc = desc[:58] + '...'
 
         html += '<tr>'
         html += f'<td>{event.get("date", "")}</td>'
         html += f'<td>{event.get("country", "")}</td>'
         html += f'<td class="name-cell">{event.get("event", "")}</td>'
         html += f'<td style="{imp_style}">{importance}</td>'
-        html += f'<td style="font-size:9pt;color:#666;">{desc}</td>'
+        html += f'<td style="font-size:9pt;color:#666;text-align:left;line-height:1.4;">{desc}</td>'
         html += '</tr>\n'
 
     html += '</tbody></table>\n'
