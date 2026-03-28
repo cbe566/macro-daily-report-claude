@@ -1,10 +1,10 @@
-name: 每日宏觀資訊報告
+name: 每日宏觀資訊報告（數據收集）
 
 on:
   schedule:
-    # 台北時間 07:30 = UTC 23:30（前一天），週一到週五
-    - cron: '30 23 * * 0-4'
-  workflow_dispatch:  # 手動觸發
+    # 台北時間 06:30 = UTC 22:30（前一天），週一到週五
+    - cron: '30 22 * * 0-4'
+  workflow_dispatch:
 
 env:
   TZ: Asia/Taipei
@@ -15,9 +15,9 @@ permissions:
   contents: write
 
 jobs:
-  generate-and-send:
+  collect-and-validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repo
@@ -30,8 +30,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install yfinance requests beautifulsoup4 exchange_calendars numpy pandas weasyprint google-auth google-auth-oauthlib google-api-python-client
-          sudo apt-get update && sudo apt-get install -y fonts-noto-cjk chromium-browser || true
+          pip install yfinance requests beautifulsoup4 exchange_calendars numpy pandas
 
       - name: Collect market data
         run: |
@@ -122,78 +121,119 @@ jobs:
           print('Alternative data collected')
           "
 
-      - name: Generate report
-        run: python3 scripts/generate_full_report.py
-
-      - name: Generate PDF
-        run: |
-          DATE=$(TZ='Asia/Taipei' date +%Y-%m-%d)
-          HTML_FILE="reports/daily_report_${DATE}.html"
-          PDF_FILE="reports/daily_report_${DATE}.pdf"
-          if command -v chromium-browser &>/dev/null; then
-            chromium-browser --headless --no-sandbox --disable-gpu \
-              --print-to-pdf="${PDF_FILE}" --print-to-pdf-no-header \
-              "file://$(pwd)/${HTML_FILE}" || true
-          fi
-          if [ ! -f "${PDF_FILE}" ] || [ $(stat -c%s "${PDF_FILE}" 2>/dev/null || echo 0) -lt 1000 ]; then
-            python3 -c "
-          from weasyprint import HTML
-          HTML('${HTML_FILE}').write_pdf('${PDF_FILE}')
-          print('PDF generated with WeasyPrint')
-          "
-          fi
-          ls -la "${PDF_FILE}"
-
-      - name: Send email
+      - name: Validate all data
         run: |
           python3 -c "
-          import smtplib, os, sys
-          from email.mime.multipart import MIMEMultipart
-          from email.mime.text import MIMEText
-          from email.mime.base import MIMEBase
-          from email import encoders
+          import json, sys, os
           from datetime import datetime
 
-          sys.path.insert(0, '.')
           DATE = datetime.now().strftime('%Y-%m-%d')
-          PDF_PATH = f'reports/daily_report_{DATE}.pdf'
-          HTML_PATH = f'reports/daily_report_{DATE}.html'
+          errors = []
+          warnings = []
 
-          html_body = ''
-          if os.path.exists(HTML_PATH):
-              with open(HTML_PATH, 'r', encoding='utf-8') as f:
-                  html_body = f.read()
+          def check_json(path, name, min_keys=1):
+              if not os.path.exists(path):
+                  errors.append(f'MISSING: {name} ({path})')
+                  return None
+              try:
+                  with open(path) as f:
+                      data = json.load(f)
+                  if isinstance(data, dict) and len(data) < min_keys:
+                      warnings.append(f'SPARSE: {name} only {len(data)} keys')
+                  size = os.path.getsize(path)
+                  print(f'  ✓ {name}: {size:,} bytes')
+                  return data
+              except Exception as e:
+                  errors.append(f'CORRUPT: {name} - {e}')
+                  return None
 
-          msg = MIMEMultipart()
-          msg['From'] = 'backup901012@gmail.com'
-          msg['To'] = 'cbe566@gmail.com'
-          msg['Subject'] = f'每日宏觀資訊綜合早報 | {DATE}'
+          print('=== 數據驗證開始 ===')
+          print(f'日期: {DATE}')
+          print()
 
-          if html_body:
-              msg.attach(MIMEText(html_body, 'html', 'utf-8'))
-          else:
-              msg.attach(MIMEText(f'{DATE} 報告請見附件', 'plain', 'utf-8'))
+          # 1. 市場數據
+          md = check_json('reports/market_data_today.json', '市場數據', 5)
+          if md:
+              for key in ['asia_indices','us_indices','commodities','forex','bonds','crypto']:
+                  items = md.get(key, {})
+                  if len(items) == 0:
+                      warnings.append(f'市場數據 {key} 為空')
+                  else:
+                      print(f'    {key}: {len(items)} items')
 
-          if os.path.exists(PDF_PATH):
-              with open(PDF_PATH, 'rb') as f:
-                  att = MIMEBase('application', 'pdf')
-                  att.set_payload(f.read())
-                  encoders.encode_base64(att)
-                  att.add_header('Content-Disposition', 'attachment', filename=f'daily_report_{DATE}.pdf')
-                  msg.attach(att)
+          # 2. 新聞
+          news = check_json('reports/news_today.json', '新聞')
+          if news:
+              articles = news.get('articles', [])
+              if len(articles) < 10:
+                  warnings.append(f'新聞只有 {len(articles)} 篇（正常 100+）')
+              else:
+                  print(f'    articles: {len(articles)}')
 
-          server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-          server.login('backup901012@gmail.com', 'mlrw darm xibx jxrk')
-          server.sendmail('backup901012@gmail.com', ['cbe566@gmail.com'], msg.as_string())
-          server.quit()
-          print(f'Email sent to cbe566@gmail.com')
+          # 3. 熱門股
+          hot = check_json('reports/hot_stocks_today.json', '熱門股')
+          if hot:
+              for market, data in hot.items():
+                  inf = len(data.get('inflow', []))
+                  out = len(data.get('outflow', []))
+                  print(f'    {market}: inflow {inf}, outflow {out}')
+                  if market == '美股' and inf == 0 and out == 0:
+                      warnings.append('美股熱門股全空（fallback 可能失效）')
+
+          # 4. 情緒數據
+          enh = check_json('reports/enhanced_today.json', '情緒數據')
+          if enh:
+              fg = enh.get('sentiment', {}).get('fear_greed', {})
+              if 'error' in fg:
+                  warnings.append(f'Fear/Greed 取得失敗: {fg[\"error\"]}')
+              elif fg.get('score') is not None:
+                  print(f'    Fear/Greed: {fg[\"score\"]:.1f} ({fg.get(\"rating\",\"\")})')
+              vix = enh.get('sentiment', {}).get('vix', {})
+              if vix.get('value'):
+                  print(f'    VIX: {vix[\"value\"]:.2f}')
+
+          # 5. 技術面
+          check_json('reports/enhanced_v2_today.json', '技術面/信用利差')
+
+          # 6. FRED
+          fred = check_json('reports/fred_today.json', 'FRED經濟數據')
+          if fred:
+              meta = fred.get('metadata', {})
+              fetched = meta.get('series_fetched', 0)
+              total = meta.get('series_total', 0)
+              print(f'    FRED: {fetched}/{total} series')
+              if fetched < total * 0.5:
+                  warnings.append(f'FRED 只取得 {fetched}/{total} 系列')
+
+          # 7. 替代數據
+          alt = check_json('reports/alternative_today.json', '替代數據')
+          if alt:
+              for key in ['put_call_ratio','sector_rotation','volatility_term_structure','em_currency_stress','market_breadth']:
+                  if key in alt and 'error' not in alt[key]:
+                      print(f'    {key}: OK')
+                  elif key in alt:
+                      warnings.append(f'替代數據 {key} 有錯誤')
+
+          # 結果
+          print()
+          print('=== 驗證結果 ===')
+          if errors:
+              print(f'❌ 嚴重錯誤 ({len(errors)}):')
+              for e in errors:
+                  print(f'   {e}')
+              sys.exit(1)
+          if warnings:
+              print(f'⚠️  警告 ({len(warnings)}):')
+              for w in warnings:
+                  print(f'   {w}')
+          print(f'✅ 驗證通過 — {7 - len(errors)} 個數據源正常')
           "
 
-      - name: Commit data to repo
+      - name: Commit validated data to repo
         run: |
           DATE=$(TZ='Asia/Taipei' date +%Y-%m-%d)
           git config user.name "GitHub Actions Bot"
           git config user.email "actions@github.com"
-          git add reports/ -f
-          git commit -m "data: ${DATE} 報告已生成並發送" || echo "No changes to commit"
-          git push origin master || echo "Push failed, non-critical"
+          git add reports/market_data_today.json reports/news_today.json reports/hot_stocks_today.json reports/enhanced_today.json reports/enhanced_v2_today.json reports/fred_today.json reports/alternative_today.json
+          git commit -m "data: ${DATE} 數據收集+驗證通過 ✅" || echo "No changes to commit"
+          git push origin master

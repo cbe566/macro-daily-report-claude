@@ -1,0 +1,117 @@
+name: 每日宏觀資訊報告（生成+發送）
+
+on:
+  schedule:
+    # 台北時間 07:24 = UTC 23:24（前一天），週一到週五
+    # 數據已於 06:30 收集+驗證完畢，07:30 前送達信箱
+    - cron: '24 23 * * 0-4'
+  workflow_dispatch:
+
+env:
+  TZ: Asia/Taipei
+
+jobs:
+  generate-and-send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repo (with latest data)
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install yfinance requests beautifulsoup4 numpy pandas weasyprint
+          sudo apt-get update && sudo apt-get install -y fonts-noto-cjk chromium-browser || true
+
+      - name: Verify data exists
+        run: |
+          echo "Checking data files..."
+          for f in market_data_today.json news_today.json hot_stocks_today.json enhanced_today.json enhanced_v2_today.json; do
+            if [ -f "reports/$f" ]; then
+              SIZE=$(stat -c%s "reports/$f")
+              echo "  ✓ $f ($SIZE bytes)"
+            else
+              echo "  ✗ $f MISSING"
+            fi
+          done
+          # fred and alternative are optional
+          for f in fred_today.json alternative_today.json; do
+            if [ -f "reports/$f" ]; then
+              SIZE=$(stat -c%s "reports/$f")
+              echo "  ✓ $f ($SIZE bytes)"
+            else
+              echo "  ⚠ $f not found (optional)"
+            fi
+          done
+
+      - name: Generate report
+        run: python3 scripts/generate_full_report.py
+
+      - name: Generate PDF
+        run: |
+          DATE=$(TZ='Asia/Taipei' date +%Y-%m-%d)
+          HTML_FILE="reports/daily_report_${DATE}.html"
+          PDF_FILE="reports/daily_report_${DATE}.pdf"
+          if command -v chromium-browser &>/dev/null; then
+            chromium-browser --headless --no-sandbox --disable-gpu \
+              --print-to-pdf="${PDF_FILE}" --print-to-pdf-no-header \
+              "file://$(pwd)/${HTML_FILE}" || true
+          fi
+          if [ ! -f "${PDF_FILE}" ] || [ $(stat -c%s "${PDF_FILE}" 2>/dev/null || echo 0) -lt 1000 ]; then
+            python3 -c "
+          from weasyprint import HTML
+          HTML('${HTML_FILE}').write_pdf('${PDF_FILE}')
+          print('PDF generated with WeasyPrint')
+          "
+          fi
+          ls -la "${PDF_FILE}"
+
+      - name: Send email
+        run: |
+          python3 -c "
+          import smtplib, os, sys
+          from email.mime.multipart import MIMEMultipart
+          from email.mime.text import MIMEText
+          from email.mime.base import MIMEBase
+          from email import encoders
+          from datetime import datetime
+
+          DATE = datetime.now().strftime('%Y-%m-%d')
+          PDF_PATH = f'reports/daily_report_{DATE}.pdf'
+          HTML_PATH = f'reports/daily_report_{DATE}.html'
+
+          html_body = ''
+          if os.path.exists(HTML_PATH):
+              with open(HTML_PATH, 'r', encoding='utf-8') as f:
+                  html_body = f.read()
+
+          msg = MIMEMultipart()
+          msg['From'] = 'backup901012@gmail.com'
+          msg['To'] = 'cbe566@gmail.com'
+          msg['Subject'] = f'每日宏觀資訊綜合早報 | {DATE}'
+
+          if html_body:
+              msg.attach(MIMEText(html_body, 'html', 'utf-8'))
+          else:
+              msg.attach(MIMEText(f'{DATE} 報告請見附件', 'plain', 'utf-8'))
+
+          if os.path.exists(PDF_PATH):
+              with open(PDF_PATH, 'rb') as f:
+                  att = MIMEBase('application', 'pdf')
+                  att.set_payload(f.read())
+                  encoders.encode_base64(att)
+                  att.add_header('Content-Disposition', 'attachment', filename=f'daily_report_{DATE}.pdf')
+                  msg.attach(att)
+
+          server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+          server.login('backup901012@gmail.com', 'mlrw darm xibx jxrk')
+          server.sendmail('backup901012@gmail.com', ['cbe566@gmail.com'], msg.as_string())
+          server.quit()
+          print(f'Email sent to cbe566@gmail.com at {datetime.now().strftime(\"%H:%M:%S\")}')
+          "
